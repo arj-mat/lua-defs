@@ -71,7 +71,7 @@ local function createClass(fullClassName, declaration)
 		return;
 	end
 
-	declaration.__isDefinition = true;
+    declaration.__isDefinition = true;
     declaration.__isClassDefinition = true;
     declaration.prototype = declaration.prototype or {};
 
