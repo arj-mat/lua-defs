@@ -7,7 +7,7 @@ Snippet for implementing classes, enumeration and types in Lua
 - Custom Types
 ## Usage
 ```lua
-require "def-lua"
+require "lua-defs"
 
 define "Animal" : Class {
   prototype = {
