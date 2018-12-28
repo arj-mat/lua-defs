@@ -42,7 +42,7 @@ define "Cat" : extends "Animal" { ... }
 define("Animal"):Class({ ... })
 define("Cat"):extends("Animal")({ ... })
 ```
-The definition name allows for targeting specific tables for implementation.
+The definition name allows for targeting specific tables for implementation. Example:
 ```lua
 Geometry = {
   Forms = {}
