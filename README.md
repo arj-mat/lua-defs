@@ -1,5 +1,5 @@
 # lua-defs
-Snippet for implementing classes, enumeration and types in Lua.
+Snippet for implementing classes, enumeration and types in pure Lua language.
 
 - Classes
 - Classes inheritance
@@ -119,8 +119,7 @@ define 'Consumer' : Class {
     end
   }
 }
-```
-```lua
+
 consumer = Consumer();
 consumer:
   addCredits(50):
@@ -209,7 +208,7 @@ define "MyCustomType" : Type {
 }
 
 define "Something" : MyCustomType (1, 2, 3)
--- Define Something as MyCustomType with the following declaration: 1, 2, 3
+-- Define Something as MyCustomType with the following declaration arguments: 1, 2, 3
 ```
 **declarationHandler(definitionName, ...)** is the required function for setting up future definitions.
 
