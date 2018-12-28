@@ -1,7 +1,7 @@
 --[[
-	Lua Defs
-	https://github.com/arj-mat/lua-defs
-	This source code is licensed under the MIT license found in the LICENSE file in the root directory of this source tree. 
+    Lua Defs
+    https://github.com/arj-mat/lua-defs
+    This source code is licensed under the MIT license found in the LICENSE file in the root directory of this source tree. 
 ]]
 
 local function showWarning(msg)
@@ -34,23 +34,23 @@ local function defineScopeByName(name)
 end
 
 local function deepCopyProperties(object)
-	local lookup_table = {}
-	local function _copy(object)
-		if type(object) ~= "table" then
-			return object
-		elseif (type(object) == "function") then
-			return nil
-		elseif lookup_table[object] then
-			return lookup_table[object]
-		end
-		local new_table = {}
-		lookup_table[object] = new_table
-		for index, value in pairs(object) do
-			new_table[_copy(index)] = _copy(value)
-		end
-		return setmetatable(new_table, getmetatable(object))
-	end
-	return _copy(object)
+    local lookup_table = {}
+    local function _copy(object)
+        if type(object) ~= "table" then
+            return object
+    elseif (type(object) == "function") then
+      return nil
+        elseif lookup_table[object] then
+            return lookup_table[object]
+        end
+        local new_table = {}
+        lookup_table[object] = new_table
+        for index, value in pairs(object) do
+            new_table[_copy(index)] = _copy(value)
+        end
+        return setmetatable(new_table, getmetatable(object))
+    end
+    return _copy(object)
 end
 
 local function createClass(fullClassName, declaration)
@@ -81,7 +81,7 @@ local function createClass(fullClassName, declaration)
 
 	classEnv[className] = declaration;
 
-	--Resolve chained methods by putting them on the prototype as callable tables:
+    --Resolve chained methods by putting them on the prototype as callable tables:
 	if (classEnv[className].chainedMethods) then
 		for name, value in next, classEnv[className].chainedMethods do
 			if (type(value) == 'function') then
@@ -106,9 +106,9 @@ local function createClass(fullClassName, declaration)
 	if (classEnv[className].extends) then
 		classEnv[className].prototype = classEnv[className].prototype or {};
 		setmetatable(classEnv[className].prototype, {
-			__index = classEnv[className].extends.prototype
-		});
-		classEnv[className].prototype.super = function(superInstance, ...)
+            __index = classEnv[className].extends.prototype
+        });
+	classEnv[className].prototype.super = function(superInstance, ...)
 			superInstance.class.extends.constructor(superInstance, ...);
 		end;
 	end
@@ -119,11 +119,11 @@ local function createClass(fullClassName, declaration)
 		(class.constructor or class.extends.constructor)(instance, ...); --- Calls for the available constructor method, with the new instance and the first received arguments.
 
 		--- Classes' instances can have custom metaevents and metamethods declared on the "metatable" field...
-		local metatable = class.metatable or {};
-		metatable.__index = class.prototype
+        local metatable = class.metatable or {};
+        metatable.__index = class.prototype
 		setmetatable(instance, metatable);
 
-		return instance;
+        return instance;
 	end
 	
 	classEnv[className].prototype.class = classEnv[className]; --- The class properties will be available by the field "class" of it's instance
@@ -132,10 +132,10 @@ local function createClass(fullClassName, declaration)
 	
 	--- Metamethod for allowing initializating the class by calling it as a function
 	setmetatable(classEnv[className], {
-		__call = function(refClass, ...)
-			return refClass.Create(refClass, ...);
-		end
-	});
+        __call = function(refClass, ...)
+            return refClass.Create(refClass, ...);
+        end
+    });
 end
 
 local function createEnum(fullEnumName, declaration)
@@ -213,57 +213,58 @@ end
 local customTypes = {};
 
 setmetatable(customTypes, {
-	__call = function(_, typeName, defName)
+    __call = function(_, typeName, fullDefName)
 		return function(_, ...)
-			customTypes[typeName](defName, ...);
-		end
-	end
+			local targetEnv, defName = defineScopeByName(fullDefName);
+            targetEnv[defName] = customTypes[typeName](defName, ...);
+        end
+    end
 });
 
 local function defineType(name, declaration)
-	if (name:find("[^%a%_]")) then
+    if (name:find("[^%a%_]")) then
 		DefinitionError('Invalid Type name "' .. name .. '". Only alphanumeric characters and underlines are accepted.');
 		return;
-	end
+    end
 	if (customTypes[name]) then
 		DefinitionError('Type "' .. name .. '" has already been defined.');
 		return;
-	end
-	customTypes[name] = declaration.declarationHandler;
-	_G[name] = declaration;
+    end
+    customTypes[name] = declaration.declarationHandler;
+    _G[name] = declaration;
 end
 
 function define(name)
-	local definitions = {
-		Class = function(_, declaration)
-			createClass(name, declaration);
-		end,
-		extends = function(_, parentName, ...)
-			return function(declaration)
-				declaration.extends = defineScopeByName(parentName)[parentName]; --The class object will contain a referece to it's parent on the"extends" field.
-				if not(type(declaration.extends) == 'table') or not(declaration.extends.__isClassDefinition) then
-					DefinitionError('Definition of "' .. name .. '" extends from an unknown class named "' .. parentName .. '".');
-					return;
-				end
-				createClass(name, declaration);
-			end
-		end,
-		Enum = function(_, declaration)
-			createEnum(name, declaration);
-		end,
-		Type = function(_, declaration)
-			defineType(name, declaration);
-		end
-	};
+    local definitions = {
+        Class = function(_, declaration)
+            createClass(name, declaration);
+        end,
+        extends = function(_, parentName, ...)
+            return function(declaration)
+                declaration.extends = defineScopeByName(parentName)[parentName]; --The class object will contain a referece to it's parent on the"extends" field.
+                if not(type(declaration.extends) == 'table') or not(declaration.extends.__isClassDefinition) then
+                    DefinitionError('Definition of "' .. name .. '" extends from an unknown class named "' .. parentName .. '".');
+                    return;
+                end
+                createClass(name, declaration);
+            end
+        end,
+        Enum = function(_, declaration)
+            createEnum(name, declaration);
+        end,
+        Type = function(_, declaration)
+            defineType(name, declaration);
+        end
+    };
 
-	setmetatable(definitions, {
-		__index = function(_, unknownDefName)
-			if (customTypes[unknownDefName]) then
-				return customTypes(unknownDefName, name);
-			end
-			DefinitionError('Unknown definition type "' .. unknownDefName .. '".');
-		end
-	});
+    setmetatable(definitions, {
+        __index = function(_, unknownDefName)
+            if (customTypes[unknownDefName]) then
+                return customTypes(unknownDefName, name);
+            end
+            DefinitionError('Unknown definition type "' .. unknownDefName .. '".');
+        end
+    });
 	
 	return definitions;
 end
