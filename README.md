@@ -203,7 +203,7 @@ ___
 Lua-Defs allows you to declarate your own defintion types sou you can expand your possibilities of object oriented programming.
 ```lua
 define "MyCustomType" : Type {
-  declarationHandler = function(targetEnv, definitionName, ...)
+  declarationHandler = function(definitionName, ...)
     print("Define " .. definitionName .. " as MyCustomType with the following declaration arguments: " .. table.concat({...}, ', '));
   end
 }
@@ -211,15 +211,15 @@ define "MyCustomType" : Type {
 define "Something" : MyCustomType (1, 2, 3)
 -- Define Something as MyCustomType with the following declaration: 1, 2, 3
 ```
-**declarationHandler(targetEnv, definitionName, ...)** is the required function for setting up future definitions.
-
-**targetEnv** is the envoriment where the definition name points to. On "MyCustomType" the target is the gloval envoriment (_G). On "MyTable.MyCustomType", it's "MyTable".
+**declarationHandler(definitionName, ...)** is the required function for setting up future definitions.
 
 **definitionName** is the string passed after the define keyword.
 
 **...** are the arguments passed after ": MyCustomType".
 
-The custom type declaration will be available as a table on the target envoriment.
+The custom type declaration will be available on the global envoriment only.
+
+It can only contains alphanumeric characters and underlines on it's name.
 
 ## Notes
 1. The *deep copy* method performed at the initialization of a class instance can cause issues if you're working with long or complex tables/metatables. For avoiding those possible conflicts, declarating complex tables at the constructor method is a better option than using the prototype declaration.
