@@ -202,17 +202,24 @@ ___
 Lua-Defs allows you to declarate your own defintion types sou you can expand your possibilities of object oriented programming.
 ```lua
 define "MyCustomType" : Type {
-  declarationHandler = function(definitionName, ...)
+  declarationHandler = function(targetEnv, fullDefinitionName, definitionName)
     print("Define " .. definitionName .. " as MyCustomType with the following declaration arguments: " .. table.concat({...}, ', '));
+    return {numbers = {...}}
   end
 }
 
 define "Something" : MyCustomType (1, 2, 3)
 -- Define Something as MyCustomType with the following declaration arguments: 1, 2, 3
-```
-**declarationHandler(definitionName, ...)** is the required function for setting up future definitions.
 
-**definitionName** is the string passed after the define keyword.
+print(Something.numbers[2]); -- 2
+```
+**declarationHandler(targetEnv, fullDefinitionName, definitionName, ...)** is the required function for setting up future definitions. Returned value will be assigned for the new definition at target envoriment.
+
+**targetEnv** envoriment where the definition name points for. Examples: for "Something" it will be the global envoriment (\_G); for "Aaa.Something", it will be the table "Aaa".
+
+**fullDefinitionName** is the string passed after the define keyword.
+
+**definitionName** is last name of the definition string.
 
 **...** are the arguments passed after ": MyCustomType".
 
