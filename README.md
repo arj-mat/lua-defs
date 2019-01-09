@@ -80,7 +80,7 @@ If the specified path does not exists on the gloval envoriment, it will be creat
 
 **prototype** table is required for non-extended classes.
 
-A *deepy copy* method is performed on the prototype for cloning it for all the new instances of the class.
+Classses' instances will have this prototype as their index meta table.
 
 Prototype functions must be declarated with a *self* reference at the first argument and called using the **:** operator.
 ```lua
@@ -226,6 +226,3 @@ print(Something.numbers[2]); -- 2
 The custom type declaration will be available on the global envoriment only.
 
 It can only contains alphanumeric characters and underlines on it's name.
-
-## Notes
-1. The *deep copy* method performed at the initialization of a class instance can cause issues if you're working with long or complex tables/metatables. For avoiding those possible conflicts, declarating complex tables at the constructor method is a better option than using the prototype declaration.
