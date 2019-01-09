@@ -2,6 +2,7 @@
     Lua Defs
     https://github.com/arj-mat/lua-defs
     This source code is licensed under the MIT license found in the LICENSE file in the root directory of this source tree. 
+    v1.0.1
 ]]
 
 local function showWarning(msg)
@@ -31,26 +32,6 @@ local function defineScopeByName(name)
 		end
 	end
 	return scope, lastPathName;
-end
-
-local function deepCopyProperties(object)
-    local lookup_table = {}
-    local function _copy(object)
-        if type(object) ~= "table" then
-            return object
-    elseif (type(object) == "function") then
-      return nil
-        elseif lookup_table[object] then
-            return lookup_table[object]
-        end
-        local new_table = {}
-        lookup_table[object] = new_table
-        for index, value in pairs(object) do
-            new_table[_copy(index)] = _copy(value)
-        end
-        return setmetatable(new_table, getmetatable(object))
-    end
-    return _copy(object)
 end
 
 local function createClass(fullClassName, declaration)
@@ -115,12 +96,12 @@ local function createClass(fullClassName, declaration)
 	
 	--- Class initialization method:
 	classEnv[className].Create = function(class, ...)
-		local instance = class.prototype and deepCopyProperties(class.prototype); --- If the class has a prototype table it must be cloned as a new instance.
+		local instance = {};
 		(class.constructor or class.extends.constructor)(instance, ...); --- Calls for the available constructor method, with the new instance and the first received arguments.
 
 		--- Classes' instances can have custom metaevents and metamethods declared on the "metatable" field...
         local metatable = class.metatable or {};
-        metatable.__index = class.prototype
+        metatable.__index = class.prototype or (class.extends and class.extends.prototype) or {};
 		setmetatable(instance, metatable);
 
         return instance;
