@@ -1,10 +1,14 @@
 # lua-defs
 Snippet for implementing classes, enumeration and types in pure Lua language.
 
+Version 1.0.2 (13th February 2019). Change notes at the end of this readme.
+
 - Classes
 - Classes inheritance
 - Enum
 - Custom Types
+- For typed Dictionary implementation, see https://github.com/arj-mat/lua-dictionary/. It's also a great example of Lua Defs' usage.
+
 ## Usage
 ```lua
 require "lua-defs"
@@ -60,7 +64,9 @@ If the specified path does not exists on the gloval envoriment, it will be creat
     propertyName = initialValue,
     methodName = function(self, args)
       --@param self Reference for the current instance
-    end
+    end,
+    super = nil -- constructor method of the parent class on extended classes,
+    class = {} -- class reference
   },
   constructor = function(self, args)
     --@param self Reference for the current instance
@@ -74,11 +80,17 @@ If the specified path does not exists on the gloval envoriment, it will be creat
   },
   metatable = {},
   extends = {} or nil, -- Reference for the parent class or nil
+  className = "", -- Class' last name
+  fullClassName = "", -- Class' full definition name
+  indexOverload = nil,
+  onlyExtendsFromItself = false,
   StaticProperty = value
 }
 ```
 
 **prototype** table is required for non-extended classes.
+
+It's meant to be a set of **default methods and properties** when they were not declarated on the instance object. For setting your custom  properties you must initialize them inside of the **constructor** function  (eg.: `self.propertyName = "my new value"; self.myTable = {}`).
 
 Classses' instances will have this prototype as their index meta table.
 
@@ -129,7 +141,18 @@ consumer:
   removeCredits(5);
 ```
 ___
-**metatable** Optional table with Lua meta events and meta methods for setting on the class instance. Note that the \_\_index meta event is forbidden since it's for internal use of the class inheritance system.
+**metatable** Optional table with Lua meta events and meta methods for setting on the class instance. Note that the \_\_index meta event is forbidden since it's for internal use of the class inheritance system. See the indexOverload field.
+__
+
+**indexOverload** Optional table or function declaration for extending the \_\_index metatable event. When setting indexOverload on a class, the inheritance control will look for the requested index on **self.class.prototype**, then on **self.class.extends.prototype** (if it exists and on it's prototypes aswell), then on **self.class.indexOverload**.
+
+When indexOverload is declarated as a function, it will take the object instance and the requested key as arguments, eg.: `indexOverload = function(self, keyName) end`.
+___
+
+**onlyExtendsFromItself** Optional boolean value. If *true*, the class will not be allowed to be extended for any other rather than it's original declaration.
+
+For example, if the class *Fruit* is declarated with *onlyExtendsFromItself = true*: `define "RedFruit" : extends "Fruit" { }` will be allowed, but `define "Strawberry" : extends "RedApple" { } ` will throw an error since the base class *Fruit* can only be extended from itself.
+
 ___
 **Static properties** All fields set on the declaration will be available as static properties on the class table.
 ```lua
@@ -145,9 +168,7 @@ ___
 The table returned from a class constructor has the class prototype as it's index metatable.
 ```
 {
-  class = {}, -- Reference for the object's class declaration table.
-  className = "", -- Object's class last name.
-  fullClassName = "" -- Object's class full definition name.
+  class = {}, -- Reference for the object's class declaration table
 }
 ```
 ___
@@ -226,3 +247,9 @@ print(Something.numbers[2]); -- 2
 The custom type declaration will be available on the global envoriment only.
 
 It can only contains alphanumeric characters and underlines on it's name.
+
+## Change notes
+**1.0.2**:
+- \[NEW] Added the class "indexOverload" declaration. Documented above.
+- \[NEW] Added the class flag "onlyExtendsFromItself" for disabling multiple class inheritance. Documented above.
+- \[BUG FIX] Class constructor is now called after the definition of the instance's metatable. Problem: it was impossible to reach properties or methods on the prototype inside of the constructor function.
