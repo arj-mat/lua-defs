@@ -7,11 +7,11 @@ Version 1.0.2 (13th February 2019). Change notes at the end of this readme.
 - Classes inheritance
 - Enum
 - Custom Types
-- For typed Dictionary implementation, see https://github.com/arj-mat/lua-dictionary/. It's also a great example of Lua Defs' usage.
+- For typed Dictionary implementation, see https://github.com/arj-mat/lua-dictionary/. It's also a good example of Lua Defs' usage.
 
 ## Usage
 ```lua
-require "lua-defs"
+require "lua-defs" -- or copy the content of lua-defs.lua into your script
 
 define "Animal" : Class {
   prototype = {
